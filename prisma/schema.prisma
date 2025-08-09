@@ -13,7 +13,7 @@ model Contact {
   street      String
   postalCode  String
   city        String
-  tags        String[]  @default([])
+  tags        Json?
   notes       String?   @db.Text
   visits      Visit[]
   issues      Issue[]
@@ -38,6 +38,12 @@ model WalklistItem {
   assignedTo String?
 }
 
+enum VisitOutcome {
+  not_home
+  talked
+  refused
+}
+
 model Visit {
   id         Int       @id @default(autoincrement())
   contact    Contact   @relation(fields: [contactId], references: [id])
@@ -49,21 +55,15 @@ model Visit {
   createdAt  DateTime  @default(now())
 }
 
-enum VisitOutcome {
-  not_home
-  talked
-  refused
-}
-
 model Issue {
-  id        Int       @id @default(autoincrement())
-  contact   Contact   @relation(fields: [contactId], references: [id])
-  contactId Int
-  title     String
-  description String?  @db.Text
-  priority  Int        @default(3) // 1=hoch, 5=niedrig
-  status    IssueStatus @default(open)
-  createdAt DateTime   @default(now())
+  id          Int       @id @default(autoincrement())
+  contact     Contact   @relation(fields: [contactId], references: [id])
+  contactId   Int
+  title       String
+  description String?   @db.Text
+  priority    Int       @default(3)
+  status      IssueStatus @default(open)
+  createdAt   DateTime  @default(now())
 }
 
 enum IssueStatus {
@@ -101,18 +101,23 @@ model PressDraft {
 }
 
 model Campaign {
-  id        Int       @id @default(autoincrement())
-  name      String
-  eDay      DateTime
-  guidelines String?  @db.Text
-  createdAt DateTime  @default(now())
-  tasks     Task[]
-  shifts    Shift[]
-  contents  ContentItem[]
-  budgets   BudgetItem[]
+  id         Int        @id @default(autoincrement())
+  name       String
+  eDay       DateTime
+  guidelines String?    @db.Text
+  createdAt  DateTime   @default(now())
+  tasks      Task[]
+  shifts     Shift[]
+  contents   ContentItem[]
+  budgets    BudgetItem[]
 }
 
-enum TaskStatus { todo, doing, done, blocked }
+enum TaskStatus {
+  todo
+  doing
+  done
+  blocked
+}
 
 model Task {
   id          Int        @id @default(autoincrement())
@@ -121,28 +126,34 @@ model Task {
   title       String
   description String?    @db.Text
   status      TaskStatus @default(todo)
-  priority    Int        @default(3) // 1=hoch,5=niedrig
+  priority    Int        @default(3)
   startAt     DateTime?
   dueAt       DateTime?
   assignee    String?
-  tags        String[]   @default([])
-  dependsOn   Int[]      @default([])
+  tags        Json?
+  dependsOn   Json?
   createdAt   DateTime   @default(now())
 }
 
-enum ShiftType { door_knocking, booth, phonebank, event, eday }
+enum ShiftType {
+  door_knocking
+  booth
+  phonebank
+  event
+  eday
+}
 
 model Volunteer {
-  id       Int     @id @default(autoincrement())
-  name     String
-  email    String?
-  phone    String?
-  skills   String[] @default([])
-  notes    String?  @db.Text
-  consent  Boolean  @default(true)
-  avail    String[] @default([])
+  id        Int     @id @default(autoincrement())
+  name      String
+  email     String?
+  phone     String?
+  skills    Json?
+  notes     String?  @db.Text
+  consent   Boolean  @default(true)
+  avail     Json?
   createdAt DateTime @default(now())
-  assigns  ShiftAssignment[]
+  assigns   ShiftAssignment[]
 }
 
 model Shift {
@@ -159,41 +170,60 @@ model Shift {
 }
 
 model ShiftAssignment {
-  id         Int       @id @default(autoincrement())
-  volunteer  Volunteer @relation(fields: [volunteerId], references: [id])
+  id          Int       @id @default(autoincrement())
+  volunteer   Volunteer @relation(fields: [volunteerId], references: [id])
   volunteerId Int
-  shift      Shift     @relation(fields: [shiftId], references: [id])
-  shiftId    Int
+  shift       Shift     @relation(fields: [shiftId], references: [id])
+  shiftId     Int
 }
 
-enum Channel { instagram, facebook, tiktok, press, newsletter, poster }
+enum Channel {
+  instagram
+  facebook
+  tiktok
+  press
+  newsletter
+  poster
+}
 
-enum ContentStatus { idea, draft, scheduled, posted }
+enum ContentStatus {
+  idea
+  draft
+  scheduled
+  posted
+}
 
 model ContentItem {
-  id         Int           @id @default(autoincrement())
-  campaign   Campaign      @relation(fields: [campaignId], references: [id])
-  campaignId Int
-  channel    Channel
-  title      String
-  copy       String? @db.Text
-  assetUrl   String?
-  status     ContentStatus @default(idea)
+  id          Int           @id @default(autoincrement())
+  campaign    Campaign      @relation(fields: [campaignId], references: [id])
+  campaignId  Int
+  channel     Channel
+  title       String
+  copy        String?       @db.Text
+  assetUrl    String?
+  status      ContentStatus @default(idea)
   scheduledAt DateTime?
-  createdAt  DateTime @default(now())
+  createdAt   DateTime      @default(now())
 }
 
-enum BudgetCat { printing, ads, events, merch, digital, misc }
+enum BudgetCat {
+  printing
+  ads
+  events
+  merch
+  digital
+  misc
+}
 
 model BudgetItem {
-  id        Int       @id @default(autoincrement())
-  campaign  Campaign  @relation(fields: [campaignId], references: [id])
+  id         Int       @id @default(autoincrement())
+  campaign   Campaign  @relation(fields: [campaignId], references: [id])
   campaignId Int
-  category  BudgetCat
-  vendor    String?
-  planned   Int       @default(0) // Cent
-  actual    Int       @default(0) // Cent
+  category   BudgetCat
+  vendor     String?
+  planned    Int       @default(0)
+  actual     Int       @default(0)
   invoiceUrl String?
-  note      String?   @db.Text
-  createdAt DateTime  @default(now())
+  note       String?   @db.Text
+  createdAt  DateTime  @default(now())
 }
