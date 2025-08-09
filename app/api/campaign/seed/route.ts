@@ -10,7 +10,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid E-Day format (YYYY-MM-DD)" }, { status: 400 });
     }
 
-    // UTC-Mitternacht
     const date = new Date(`${eDayISO}T00:00:00.000Z`);
     if (Number.isNaN(date.getTime())) {
       return NextResponse.json({ error: "Invalid E-Day date" }, { status: 400 });

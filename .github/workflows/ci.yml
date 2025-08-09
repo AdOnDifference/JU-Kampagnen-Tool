@@ -9,6 +9,7 @@ jobs:
         with:
           node-version: '20'
       - run: npm ci
-      - run: npx prisma generate
+      - run: npx prisma --version
       - run: npx prisma validate
+      - run: npx prisma generate
       - run: npm run build
