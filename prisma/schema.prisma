@@ -1,6 +1,6 @@
 generator client {
   provider      = "prisma-client-js"
-  binaryTargets = ["native", "debian-openssl-3.0.x"] // für CI auf Ubuntu
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
 }
 
 datasource db {
@@ -14,7 +14,7 @@ model Contact {
   street     String
   postalCode String
   city       String
-  tags       String? // JSON als String speichern
+  tags       String? // JSON als String
   notes      String?
   visits     Visit[]
   issues     Issue[]
@@ -44,7 +44,7 @@ model Visit {
   contact    Contact  @relation(fields: [contactId], references: [id])
   contactId  Int
   walklistId Int?
-  outcome    String // statt enum VisitOutcome
+  outcome    String // statt enum
   followUp   Boolean  @default(false)
   notes      String?
   createdAt  DateTime @default(now())
@@ -57,7 +57,7 @@ model Issue {
   title       String
   description String?
   priority    Int      @default(3)
-  status      String   @default("open") // statt enum IssueStatus
+  status      String   @default("open") // statt enum
   createdAt   DateTime @default(now())
 }
 
@@ -108,7 +108,7 @@ model Task {
   campaignId  Int
   title       String
   description String?
-  status      String    @default("todo") // statt enum TaskStatus
+  status      String    @default("todo") // statt enum
   priority    Int       @default(3)
   startAt     DateTime?
   dueAt       DateTime?
@@ -133,7 +133,7 @@ model Volunteer {
 
 model Shift {
   id         Int               @id @default(autoincrement())
-  type       String // statt enum ShiftType
+  type       String // statt enum
   title      String
   location   String?
   startAt    DateTime
@@ -156,11 +156,11 @@ model ContentItem {
   id          Int       @id @default(autoincrement())
   campaign    Campaign  @relation(fields: [campaignId], references: [id])
   campaignId  Int
-  channel     String // statt enum Channel
+  channel     String // statt enum
   title       String
   copy        String?
   assetUrl    String?
-  status      String    @default("idea") // statt enum ContentStatus
+  status      String    @default("idea") // statt enum
   scheduledAt DateTime?
   createdAt   DateTime  @default(now())
 }
@@ -169,7 +169,7 @@ model BudgetItem {
   id         Int      @id @default(autoincrement())
   campaign   Campaign @relation(fields: [campaignId], references: [id])
   campaignId Int
-  category   String // statt enum BudgetCat
+  category   String // statt enum
   vendor     String?
   planned    Int      @default(0)
   actual     Int      @default(0)
