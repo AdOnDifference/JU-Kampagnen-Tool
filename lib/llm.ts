@@ -9,8 +9,7 @@ export async function generatePressDraft(outlet: string, occasion: string) {
   return {
     subject: `[Presse] ${occasion}`,
     intro: `Worum geht's, warum lokal relevant.`,
-    quote: `"Wir freuen uns...",
-— Vorname Nachname`,
+    quote: `"Wir freuen uns...",\n— Vorname Nachname`,
     closing: `Kontakt: ...`,
   };
 }
