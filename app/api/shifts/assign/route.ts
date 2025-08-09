@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { assignShifts } from "@/lib/shifts";
 
+export const dynamic = "force-dynamic";
+
 type ShiftRow = { id: number };
 
 export async function POST(req: NextRequest) {

@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   const visits = await prisma.visit.findMany({ include: { contact: true } });
   const lines = ["name,street,postalCode,city,outcome,followUp,createdAt"];

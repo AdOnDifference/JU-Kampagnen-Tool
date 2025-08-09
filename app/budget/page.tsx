@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 function toEuro(cents: number) {
   return (cents/100).toLocaleString("de-DE", { style: "currency", currency: "EUR" });
 }
