@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 export default async function Issues() {
   const [open, done] = await Promise.all([
     prisma.issue.findMany({ where: { status: "open" } }),

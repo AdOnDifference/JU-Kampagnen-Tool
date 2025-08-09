@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 type TaskRow = { id: number; title: string; startAt: Date | null; dueAt: Date | null };
 type ShiftRow = { id: number; title: string; startAt: Date; endAt: Date };
 
