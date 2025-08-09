@@ -1,0 +1,199 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Contact {
+  id          Int       @id @default(autoincrement())
+  name        String?
+  street      String
+  postalCode  String
+  city        String
+  tags        String[]  @default([])
+  notes       String?   @db.Text
+  visits      Visit[]
+  issues      Issue[]
+  createdAt   DateTime  @default(now())
+  walkItems   WalklistItem[]
+}
+
+model Walklist {
+  id        Int            @id @default(autoincrement())
+  title     String
+  createdAt DateTime       @default(now())
+  items     WalklistItem[]
+}
+
+model WalklistItem {
+  id         Int      @id @default(autoincrement())
+  contact    Contact  @relation(fields: [contactId], references: [id])
+  contactId  Int
+  walklist   Walklist @relation(fields: [walklistId], references: [id])
+  walklistId Int
+  position   Int
+  assignedTo String?
+}
+
+model Visit {
+  id         Int       @id @default(autoincrement())
+  contact    Contact   @relation(fields: [contactId], references: [id])
+  contactId  Int
+  walklistId Int?
+  outcome    VisitOutcome
+  followUp   Boolean   @default(false)
+  notes      String?   @db.Text
+  createdAt  DateTime  @default(now())
+}
+
+enum VisitOutcome {
+  not_home
+  talked
+  refused
+}
+
+model Issue {
+  id        Int       @id @default(autoincrement())
+  contact   Contact   @relation(fields: [contactId], references: [id])
+  contactId Int
+  title     String
+  description String?  @db.Text
+  priority  Int        @default(3) // 1=hoch, 5=niedrig
+  status    IssueStatus @default(open)
+  createdAt DateTime   @default(now())
+}
+
+enum IssueStatus {
+  open
+  done
+}
+
+model FlyerVariant {
+  id        Int      @id @default(autoincrement())
+  topic     String
+  audience  String
+  variantA  String    @db.Text
+  variantB  String    @db.Text
+  winner    String?
+  createdAt DateTime  @default(now())
+}
+
+model PressContact {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String
+  outlet    String
+  notes     String?   @db.Text
+  createdAt DateTime  @default(now())
+  drafts    PressDraft[]
+}
+
+model PressDraft {
+  id        Int      @id @default(autoincrement())
+  title     String
+  body      String    @db.Text
+  contact   PressContact? @relation(fields: [contactId], references: [id])
+  contactId Int?
+  createdAt DateTime  @default(now())
+}
+
+model Campaign {
+  id        Int       @id @default(autoincrement())
+  name      String
+  eDay      DateTime
+  guidelines String?  @db.Text
+  createdAt DateTime  @default(now())
+  tasks     Task[]
+  shifts    Shift[]
+  contents  ContentItem[]
+  budgets   BudgetItem[]
+}
+
+enum TaskStatus { todo, doing, done, blocked }
+
+model Task {
+  id          Int        @id @default(autoincrement())
+  campaign    Campaign   @relation(fields: [campaignId], references: [id])
+  campaignId  Int
+  title       String
+  description String?    @db.Text
+  status      TaskStatus @default(todo)
+  priority    Int        @default(3) // 1=hoch,5=niedrig
+  startAt     DateTime?
+  dueAt       DateTime?
+  assignee    String?
+  tags        String[]   @default([])
+  dependsOn   Int[]      @default([])
+  createdAt   DateTime   @default(now())
+}
+
+enum ShiftType { door_knocking, booth, phonebank, event, eday }
+
+model Volunteer {
+  id       Int     @id @default(autoincrement())
+  name     String
+  email    String?
+  phone    String?
+  skills   String[] @default([])
+  notes    String?  @db.Text
+  consent  Boolean  @default(true)
+  avail    String[] @default([])
+  createdAt DateTime @default(now())
+  assigns  ShiftAssignment[]
+}
+
+model Shift {
+  id        Int        @id @default(autoincrement())
+  type      ShiftType
+  title     String
+  location  String?
+  startAt   DateTime
+  endAt     DateTime
+  needed    Int        @default(2)
+  campaign  Campaign   @relation(fields: [campaignId], references: [id])
+  campaignId Int
+  assigns   ShiftAssignment[]
+}
+
+model ShiftAssignment {
+  id         Int       @id @default(autoincrement())
+  volunteer  Volunteer @relation(fields: [volunteerId], references: [id])
+  volunteerId Int
+  shift      Shift     @relation(fields: [shiftId], references: [id])
+  shiftId    Int
+}
+
+enum Channel { instagram, facebook, tiktok, press, newsletter, poster }
+
+enum ContentStatus { idea, draft, scheduled, posted }
+
+model ContentItem {
+  id         Int           @id @default(autoincrement())
+  campaign   Campaign      @relation(fields: [campaignId], references: [id])
+  campaignId Int
+  channel    Channel
+  title      String
+  copy       String? @db.Text
+  assetUrl   String?
+  status     ContentStatus @default(idea)
+  scheduledAt DateTime?
+  createdAt  DateTime @default(now())
+}
+
+enum BudgetCat { printing, ads, events, merch, digital, misc }
+
+model BudgetItem {
+  id        Int       @id @default(autoincrement())
+  campaign  Campaign  @relation(fields: [campaignId], references: [id])
+  campaignId Int
+  category  BudgetCat
+  vendor    String?
+  planned   Int       @default(0) // Cent
+  actual    Int       @default(0) // Cent
+  invoiceUrl String?
+  note      String?   @db.Text
+  createdAt DateTime  @default(now())
+}
