@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"] // für CI auf Ubuntu
 }
 
 datasource db {
@@ -8,17 +9,17 @@ datasource db {
 }
 
 model Contact {
-  id          Int       @id @default(autoincrement())
-  name        String?
-  street      String
-  postalCode  String
-  city        String
-  tags        Json?
-  notes       String?   @db.Text
-  visits      Visit[]
-  issues      Issue[]
-  createdAt   DateTime  @default(now())
-  walkItems   WalklistItem[]
+  id         Int            @id @default(autoincrement())
+  name       String?
+  street     String
+  postalCode String
+  city       String
+  tags       String? // JSON als String speichern
+  notes      String?
+  visits     Visit[]
+  issues     Issue[]
+  createdAt  DateTime       @default(now())
+  walkItems  WalklistItem[]
 }
 
 model Walklist {
@@ -38,135 +39,109 @@ model WalklistItem {
   assignedTo String?
 }
 
-enum VisitOutcome {
-  not_home
-  talked
-  refused
-}
-
 model Visit {
-  id         Int       @id @default(autoincrement())
-  contact    Contact   @relation(fields: [contactId], references: [id])
+  id         Int      @id @default(autoincrement())
+  contact    Contact  @relation(fields: [contactId], references: [id])
   contactId  Int
   walklistId Int?
-  outcome    VisitOutcome
-  followUp   Boolean   @default(false)
-  notes      String?   @db.Text
-  createdAt  DateTime  @default(now())
+  outcome    String // statt enum VisitOutcome
+  followUp   Boolean  @default(false)
+  notes      String?
+  createdAt  DateTime @default(now())
 }
 
 model Issue {
-  id          Int       @id @default(autoincrement())
-  contact     Contact   @relation(fields: [contactId], references: [id])
+  id          Int      @id @default(autoincrement())
+  contact     Contact  @relation(fields: [contactId], references: [id])
   contactId   Int
   title       String
-  description String?   @db.Text
-  priority    Int       @default(3)
-  status      IssueStatus @default(open)
-  createdAt   DateTime  @default(now())
-}
-
-enum IssueStatus {
-  open
-  done
+  description String?
+  priority    Int      @default(3)
+  status      String   @default("open") // statt enum IssueStatus
+  createdAt   DateTime @default(now())
 }
 
 model FlyerVariant {
   id        Int      @id @default(autoincrement())
   topic     String
   audience  String
-  variantA  String    @db.Text
-  variantB  String    @db.Text
+  variantA  String
+  variantB  String
   winner    String?
-  createdAt DateTime  @default(now())
+  createdAt DateTime @default(now())
 }
 
 model PressContact {
-  id        Int      @id @default(autoincrement())
+  id        Int          @id @default(autoincrement())
   name      String
   email     String
   outlet    String
-  notes     String?   @db.Text
-  createdAt DateTime  @default(now())
+  notes     String?
+  createdAt DateTime     @default(now())
   drafts    PressDraft[]
 }
 
 model PressDraft {
-  id        Int      @id @default(autoincrement())
+  id        Int           @id @default(autoincrement())
   title     String
-  body      String    @db.Text
+  body      String
   contact   PressContact? @relation(fields: [contactId], references: [id])
   contactId Int?
-  createdAt DateTime  @default(now())
+  createdAt DateTime      @default(now())
 }
 
 model Campaign {
-  id         Int        @id @default(autoincrement())
+  id         Int           @id @default(autoincrement())
   name       String
   eDay       DateTime
-  guidelines String?    @db.Text
-  createdAt  DateTime   @default(now())
+  guidelines String?
+  createdAt  DateTime      @default(now())
   tasks      Task[]
   shifts     Shift[]
   contents   ContentItem[]
   budgets    BudgetItem[]
 }
 
-enum TaskStatus {
-  todo
-  doing
-  done
-  blocked
-}
-
 model Task {
-  id          Int        @id @default(autoincrement())
-  campaign    Campaign   @relation(fields: [campaignId], references: [id])
+  id          Int       @id @default(autoincrement())
+  campaign    Campaign  @relation(fields: [campaignId], references: [id])
   campaignId  Int
   title       String
-  description String?    @db.Text
-  status      TaskStatus @default(todo)
-  priority    Int        @default(3)
+  description String?
+  status      String    @default("todo") // statt enum TaskStatus
+  priority    Int       @default(3)
   startAt     DateTime?
   dueAt       DateTime?
   assignee    String?
-  tags        Json?
-  dependsOn   Json?
-  createdAt   DateTime   @default(now())
-}
-
-enum ShiftType {
-  door_knocking
-  booth
-  phonebank
-  event
-  eday
+  tags        String? // JSON als String
+  dependsOn   String? // JSON als String
+  createdAt   DateTime  @default(now())
 }
 
 model Volunteer {
-  id        Int     @id @default(autoincrement())
+  id        Int               @id @default(autoincrement())
   name      String
   email     String?
   phone     String?
-  skills    Json?
-  notes     String?  @db.Text
-  consent   Boolean  @default(true)
-  avail     Json?
-  createdAt DateTime @default(now())
+  skills    String? // JSON als String
+  notes     String?
+  consent   Boolean           @default(true)
+  avail     String? // JSON als String
+  createdAt DateTime          @default(now())
   assigns   ShiftAssignment[]
 }
 
 model Shift {
-  id        Int        @id @default(autoincrement())
-  type      ShiftType
-  title     String
-  location  String?
-  startAt   DateTime
-  endAt     DateTime
-  needed    Int        @default(2)
-  campaign  Campaign   @relation(fields: [campaignId], references: [id])
+  id         Int               @id @default(autoincrement())
+  type       String // statt enum ShiftType
+  title      String
+  location   String?
+  startAt    DateTime
+  endAt      DateTime
+  needed     Int               @default(2)
+  campaign   Campaign          @relation(fields: [campaignId], references: [id])
   campaignId Int
-  assigns   ShiftAssignment[]
+  assigns    ShiftAssignment[]
 }
 
 model ShiftAssignment {
@@ -177,53 +152,28 @@ model ShiftAssignment {
   shiftId     Int
 }
 
-enum Channel {
-  instagram
-  facebook
-  tiktok
-  press
-  newsletter
-  poster
-}
-
-enum ContentStatus {
-  idea
-  draft
-  scheduled
-  posted
-}
-
 model ContentItem {
-  id          Int           @id @default(autoincrement())
-  campaign    Campaign      @relation(fields: [campaignId], references: [id])
+  id          Int       @id @default(autoincrement())
+  campaign    Campaign  @relation(fields: [campaignId], references: [id])
   campaignId  Int
-  channel     Channel
+  channel     String // statt enum Channel
   title       String
-  copy        String?       @db.Text
+  copy        String?
   assetUrl    String?
-  status      ContentStatus @default(idea)
+  status      String    @default("idea") // statt enum ContentStatus
   scheduledAt DateTime?
-  createdAt   DateTime      @default(now())
-}
-
-enum BudgetCat {
-  printing
-  ads
-  events
-  merch
-  digital
-  misc
+  createdAt   DateTime  @default(now())
 }
 
 model BudgetItem {
-  id         Int       @id @default(autoincrement())
-  campaign   Campaign  @relation(fields: [campaignId], references: [id])
+  id         Int      @id @default(autoincrement())
+  campaign   Campaign @relation(fields: [campaignId], references: [id])
   campaignId Int
-  category   BudgetCat
+  category   String // statt enum BudgetCat
   vendor     String?
-  planned    Int       @default(0)
-  actual     Int       @default(0)
+  planned    Int      @default(0)
+  actual     Int      @default(0)
   invoiceUrl String?
-  note       String?   @db.Text
-  createdAt  DateTime  @default(now())
+  note       String?
+  createdAt  DateTime @default(now())
 }
