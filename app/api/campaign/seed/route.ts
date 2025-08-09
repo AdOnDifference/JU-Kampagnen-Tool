@@ -6,11 +6,11 @@ export async function POST(req: NextRequest) {
   try {
     const { name, eDayISO, guidelines } = await req.json();
 
-    // Erwartet "YYYY-MM-DD" vom <input type="date">
     if (typeof eDayISO !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(eDayISO)) {
-      return NextResponse.json({ error: "Invalid E-Day format (use YYYY-MM-DD)" }, { status: 400 });
+      return NextResponse.json({ error: "Invalid E-Day format (YYYY-MM-DD)" }, { status: 400 });
     }
 
+    // UTC-Mitternacht
     const date = new Date(`${eDayISO}T00:00:00.000Z`);
     if (Number.isNaN(date.getTime())) {
       return NextResponse.json({ error: "Invalid E-Day date" }, { status: 400 });

@@ -3,7 +3,7 @@ import { useState } from "react";
 
 export default function CampaignSettings() {
   const [name, setName] = useState("Kommunalwahl 2026");
-  const [eDay, setEDay] = useState(""); // bekommt "YYYY-MM-DD" vom <input type="date">
+  const [eDay, setEDay] = useState(""); // kommt als YYYY-MM-DD
   const [guidelines, setGuidelines] = useState("Respektvoll, lösungsorientiert, junge Impulse.");
 
   async function seed() {
